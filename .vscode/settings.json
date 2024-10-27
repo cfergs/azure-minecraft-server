@@ -1,0 +1,8 @@
+{
+    "bicep.enableSurveys": false,
+    "editor.tabSize": 2,
+    "files.eol": "\r\n",
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "files.trimTrailingWhitespace": true,
+}

@@ -1,3 +1,4 @@
+param logAnalyticsWorkspaceName string
 param uniquePrefix string
 
 // container storage
@@ -21,6 +22,12 @@ resource fileShare 'Microsoft.Storage/storageAccounts/fileServices/shares@2023-0
 }
 
 // container
+
+// pull in details from existing resource so we can retrieve the shared key
+resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' existing = {
+  name: logAnalyticsWorkspaceName
+}
+
 resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2023-05-01' = {
   name: 'containergrp-${uniquePrefix}'
   location: resourceGroup().location
@@ -72,6 +79,13 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2023-05-01'
         }
       }
     ]
+    diagnostics: {
+      logAnalytics: {
+        logType: 'ContainerInstanceLogs'
+        workspaceId: logAnalyticsWorkspace.name
+        workspaceKey: logAnalyticsWorkspace.listKeys().primarySharedKey
+      }
+    }
     restartPolicy: 'OnFailure'
     osType: 'Linux'
     ipAddress: {
@@ -97,3 +111,5 @@ resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2023-05-01'
     ]
   }
 }
+
+output containerGroupName string = containerGroup.name
